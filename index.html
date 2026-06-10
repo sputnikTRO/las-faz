@@ -288,7 +288,7 @@
     <a class="shop-logo" href="#" data-view="home">FAZ</a>
     <div class="header-right">
       <!-- Carrito: abre MERCADOPAGO_LINK en pestaña nueva (no hay carrito propio) -->
-      <a class="icon icon-cart" id="cart-link" href="#" target="_blank" rel="noopener" aria-label="Comprar">
+      <a class="icon icon-cart" id="cart-link" href="#" rel="noopener" aria-label="Comprar">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
       </a>
       <select class="currency-select" aria-label="Moneda">
@@ -302,7 +302,7 @@
     <!-- ÚNICO producto por ahora. Clic -> abre MERCADOPAGO_LINK en pestaña nueva.
          Para agregar más productos, duplica este bloque <a class="product">…</a>.
          Reemplaza assets/tshirt.jpg, el nombre y el precio. -->
-    <a class="product product-buy" href="#" target="_blank" rel="noopener">
+    <a class="product product-buy" href="#" rel="noopener">
       <img src="assets/tshirt.jpg" alt="T-Shirt las Faz" width="340" height="340">
       <p class="product-name">T-Shirt</p>
       <p class="product-price" data-tshirt-price><!-- precio renderizado por JS --></p>
@@ -343,7 +343,7 @@
     </div>
     <a class="shop-logo" href="#" data-view="home">FAZ</a>
     <div class="header-right">
-      <a class="icon" id="cart-link-menu" href="#" target="_blank" rel="noopener" aria-label="Comprar">
+      <a class="icon" id="cart-link-menu" href="#" rel="noopener" aria-label="Comprar">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
       </a>
       <select class="currency-select" aria-label="Moneda">
@@ -408,18 +408,22 @@
   document.getElementById('album-link').href = STREAMING_LINK;
 
   // Compra: producto + íconos de carrito -> Mercado Pago.
-  // Si MERCADOPAGO_LINK sigue sin configurarse, el botón no abre una página rota:
-  // avisa que el pago estará disponible pronto. Al pegar el link real, funciona solo.
+  // Navega en la MISMA pestaña (window.location), NO target="_blank". En Safari
+  // iOS abrir el checkout en pestaña nueva dispara el aviso "abrir otra app";
+  // navegando en la misma pestaña, Mercado Pago abre directo.
+  // Si MERCADOPAGO_LINK sigue sin configurarse, avisa en vez de abrir página rota.
   const MP_LISTO = MERCADOPAGO_LINK && MERCADOPAGO_LINK !== "PEGAR_AQUI_LINK_DE_PAGO";
   document.querySelectorAll('.product-buy, #cart-link, #cart-link-menu').forEach(el => {
-    if (MP_LISTO) {
-      el.href = MERCADOPAGO_LINK;
-    } else {
-      el.addEventListener('click', e => {
-        e.preventDefault();
+    el.removeAttribute('target');               // misma pestaña
+    if (MP_LISTO) el.href = MERCADOPAGO_LINK;   // href real (para copiar enlace / accesibilidad)
+    el.addEventListener('click', e => {
+      e.preventDefault();
+      if (MP_LISTO) {
+        window.location.href = MERCADOPAGO_LINK;
+      } else {
         alert('La compra estará disponible muy pronto. ¡Gracias por tu interés!');
-      });
-    }
+      }
+    });
   });
 
   // Contacto -> mailto
