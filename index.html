@@ -278,6 +278,9 @@
       <a id="social-tiktok" href="#" target="_blank" rel="noopener" aria-label="TikTok">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.3 2.1 1.5 3.6 3.5 3.9V9.4c-1.3 0-2.5-.4-3.5-1.1v6.3c0 3.2-2.4 5.4-5.3 5.4-2.7 0-4.9-2-4.9-4.7 0-2.9 2.4-4.9 5.6-4.5v2.6c-.3-.1-.7-.2-1-.2-1.2 0-2.1.9-2.1 2.1 0 1.2 1 2.1 2.2 2.1 1.3 0 2.3-1 2.3-2.5V3h2.7z"/></svg>
       </a>
+      <a id="social-youtube" href="#" target="_blank" rel="noopener" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12c0-1.7-.2-3.4-.2-3.4s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C17.2 5.5 12 5.5 12 5.5s-5.2 0-8 .2c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S1 10.3 1 12v1.7c0 1.7.2 3.4.2 3.4s.2 1.4.8 2c.8.8 1.8.8 2.3.9 1.7.2 7.7.2 7.7.2s5.2 0 8-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.7.2-3.4V12zM9.8 15.5v-6l5.2 3-5.2 3z"/></svg>
+      </a>
     </div>
     <p class="footer-copy">© 2026 las Faz</p>
     <!-- Email de contacto (mailto) -> CONTACT_EMAIL -->
@@ -335,7 +338,8 @@
   // (Se obtienen abriendo cada perfil y copiando la URL del navegador.)
   const SOCIALS = {
     instagram: "https://instagram.com/fazmusiica",
-    tiktok:    "https://tiktok.com/@fazmusiica"
+    tiktok:    "https://tiktok.com/@fazmusiica",
+    youtube:   "https://www.youtube.com/channel/UCYu0Z8Q4n0l68jCKy6G6AYA"
   };
 
   /* =====================================================================
@@ -367,6 +371,7 @@
   // Redes -> SOCIALS
   document.getElementById('social-instagram').href = SOCIALS.instagram;
   document.getElementById('social-tiktok').href    = SOCIALS.tiktok;
+  document.getElementById('social-youtube').href   = SOCIALS.youtube;
 
   /* =====================================================================
      Cambio de vista (Home <-> Shop) sin recargar.
