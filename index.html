@@ -269,25 +269,23 @@
     }
     .home-nav-select:focus { outline: none; }
 
-    /* Línea separadora bajo el header (como la referencia), pegada al header sticky. */
-    .shop-header { border-bottom: 1px solid var(--black); }
-
-    /* Shop como columna; el bloque de producto llena la pantalla para que el
-       footer quede DEBAJO del fold (no se ve hasta hacer scroll). */
+    /* Shop como columna a toda la altura: el contenido empuja el footer
+       SIEMPRE hasta el fondo de la pantalla (sticky footer). */
     #shop.active {
       display: flex;
       flex-direction: column;
+      min-height: 100svh;
     }
-    /* El grid ocupa al menos toda la altura visible (menos el header): así el
-       producto queda arriba y el footer cae fuera de la primera pantalla. */
+    /* El grid crece y ocupa el espacio sobrante para que el footer baje. */
     .shop-grid {
-      align-content: flex-start;            /* producto arriba, tamaño natural */
-      min-height: 100svh;                   /* llena la pantalla; el footer cae bajo el fold */
+      flex: 1 0 auto;
       padding: clamp(20px, 5vh, 32px) var(--pad) clamp(28px, 5vh, 40px);
     }
     /* Producto a ancho completo (1 columna): imagen grande y protagónica,
        cuadrada, con ~20px de padding lateral (heredado de --pad). */
     .product { flex: 1 1 100%; max-width: none; }
+    /* El footer no crece: queda pegado al fondo gracias al grid flexible. */
+    .shop-footer { flex: 0 0 auto; }
   }
 
   /* ---------- Desktop: ajuste fino de la landing (NO afecta móvil) ----------
