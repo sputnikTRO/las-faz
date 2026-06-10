@@ -407,24 +407,33 @@
   // Home: portada -> streaming
   document.getElementById('album-link').href = STREAMING_LINK;
 
-  // Compra: producto + íconos de carrito -> Mercado Pago.
-  // Navega en la MISMA pestaña (window.location), NO target="_blank". En Safari
-  // iOS abrir el checkout en pestaña nueva dispara el aviso "abrir otra app";
-  // navegando en la misma pestaña, Mercado Pago abre directo.
+  // Compra: producto (playera) + íconos de carrito -> EXCLUSIVAMENTE Mercado Pago.
+  // Navega en la MISMA pestaña (window.location.href), NO target="_blank": en
+  // Safari iOS abrir el checkout en pestaña nueva dispara el aviso "abrir otra app".
   // Si MERCADOPAGO_LINK sigue sin configurarse, avisa en vez de abrir página rota.
   const MP_LISTO = MERCADOPAGO_LINK && MERCADOPAGO_LINK !== "PEGAR_AQUI_LINK_DE_PAGO";
+
+  // Handler único y aislado del checkout. preventDefault + stopPropagation evitan
+  // que el clic se propague a cualquier otro listener (no debe abrir el streaming).
+  function irACheckout(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (MP_LISTO) {
+      window.location.href = MERCADOPAGO_LINK;   // checkout de Mercado Pago, misma pestaña
+    } else {
+      alert('La compra estará disponible muy pronto. ¡Gracias por tu interés!');
+    }
+  }
+
   document.querySelectorAll('.product-buy, #cart-link, #cart-link-menu').forEach(el => {
-    el.removeAttribute('target');               // misma pestaña
-    if (MP_LISTO) el.href = MERCADOPAGO_LINK;   // href real (para copiar enlace / accesibilidad)
-    el.addEventListener('click', e => {
-      e.preventDefault();
-      if (MP_LISTO) {
-        window.location.href = MERCADOPAGO_LINK;
-      } else {
-        alert('La compra estará disponible muy pronto. ¡Gracias por tu interés!');
-      }
-    });
+    el.removeAttribute('target');                // misma pestaña (no pestaña nueva)
+    el.removeAttribute('data-view');             // por si acaso: nunca cambia de vista
+    if (MP_LISTO) el.href = MERCADOPAGO_LINK;    // href real (copiar enlace / accesibilidad)
+    el.addEventListener('click', irACheckout);
   });
+
+  // El STREAMING_LINK SOLO se abre desde la portada del álbum (vista Home).
+  // Es un anchor nativo con target="_blank"; no lleva ningún handler de JS extra.
 
   // Contacto -> mailto
   const contact = document.getElementById('contact-link');
