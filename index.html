@@ -107,11 +107,32 @@
     gap: 22px;
   }
   .header-right .icon:hover { opacity: 0.4; }
-  .currency {
-    display: inline-flex; align-items: center; gap: 5px;
+  /* Selector de moneda (monocromático, sin chrome del SO; flecha negra propia) */
+  .currency-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    color: var(--black);
+    font: inherit;
     font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 16px 0 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" stroke="black" stroke-width="1.4"><path d="M2 4l4 4 4-4"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 11px 11px;
   }
-  .currency svg { width: 11px; height: 11px; }
+  .currency-select:focus { outline: none; }
+  .currency-select option { color: var(--black); }
+  /* Variante de bloque para la fila "Currency" del menú */
+  .currency-select--block {
+    width: 100%;
+    font-size: 22px;
+    background-size: 13px 13px;
+  }
 
   /* Grid de productos: centrado y "no estirado" con un solo item,
      listo para agregar más productos sin romper el layout. */
@@ -138,6 +159,8 @@
   }
   .product-name { margin-top: 16px; font-size: 15px; font-weight: 700; }
   .product-price { font-size: 15px; margin-top: 2px; }
+  /* Nota de honestidad para precios en USD (referenciales) */
+  .product-fx-note { font-size: 11px; margin-top: 6px; opacity: 0.6; max-width: 240px; }
   /* Elementos de confianza junto al producto */
   .product-secure { font-size: 12px; margin-top: 8px; opacity: 0.6; }
   .product-shipping { font-size: 12px; margin-top: 4px; opacity: 0.6; }
@@ -252,7 +275,10 @@
       <a class="icon icon-cart" id="cart-link" href="#" target="_blank" rel="noopener" aria-label="Comprar">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
       </a>
-      <span class="currency">MXN <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4l4 4 4-4"/></svg></span>
+      <select class="currency-select" aria-label="Moneda">
+        <option value="MXN">MXN</option>
+        <option value="USD">USD</option>
+      </select>
     </div>
   </header>
 
@@ -263,7 +289,8 @@
     <a class="product product-buy" href="#" target="_blank" rel="noopener">
       <img src="assets/tshirt.jpg" alt="T-Shirt las Faz" width="340" height="340">
       <p class="product-name">T-Shirt</p>
-      <p class="product-price">$580 MXN</p>
+      <p class="product-price" data-tshirt-price><!-- precio renderizado por JS --></p>
+      <p class="product-fx-note" hidden>Precios en USD son referenciales. El cobro se procesa en MXN.</p>
       <p class="product-secure">Pago seguro vía Mercado Pago</p>
       <p class="product-shipping">Envíos a todo México · 3-5 días hábiles</p>
     </a>
@@ -303,7 +330,10 @@
       <a class="icon" id="cart-link-menu" href="#" target="_blank" rel="noopener" aria-label="Comprar">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
       </a>
-      <span class="currency">MXN <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4l4 4 4-4"/></svg></span>
+      <select class="currency-select" aria-label="Moneda">
+        <option value="MXN">MXN</option>
+        <option value="USD">USD</option>
+      </select>
     </div>
   </div>
 
@@ -314,7 +344,12 @@
 
   <div class="menu-currency">
     <p class="label">Currency</p>
-    <div class="value">MXN <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4l4 4 4-4"/></svg></div>
+    <div class="value">
+      <select class="currency-select currency-select--block" aria-label="Moneda">
+        <option value="MXN">MXN</option>
+        <option value="USD">USD</option>
+      </select>
+    </div>
   </div>
 </div>
 
@@ -330,6 +365,13 @@
   // Link de pago de Mercado Pago. Se genera dentro de la app de Mercado Pago:
   // "Herramientas para vender" -> "Link de pago" -> crear link del producto y pegarlo aquí.
   const MERCADOPAGO_LINK = "https://www.mercadopago.com.mx/checkout/v1/payment/redirect/aad90f6a-5b5c-4b37-8cdd-836e7f161fa7/payment-option-form/?source=link&preference-id=3462383305-10ad131c-ee05-49d5-8319-59e6405524fa&router-request-id=739f2e75-723e-4d5b-aa03-0cf1a20a30af&p=681f95b233aefe9c5f95d197dd828665";
+
+  // Precio base de la playera en pesos mexicanos (número, sin símbolo).
+  const TSHIRT_PRICE_MXN = 580;
+
+  // Tasa de respaldo MXN -> USD (cuántos USD vale 1 MXN). Se usa solo si falla
+  // la consulta de tipo de cambio en vivo. Ajústala si el respaldo queda viejo.
+  const FALLBACK_MXN_USD = 0.055;
 
   // Correo de contacto que se muestra en el footer (mailto). Cámbialo por el real.
   const CONTACT_EMAIL    = "regina.faz@icloud.com";
@@ -372,6 +414,62 @@
   document.getElementById('social-instagram').href = SOCIALS.instagram;
   document.getElementById('social-tiktok').href    = SOCIALS.tiktok;
   document.getElementById('social-youtube').href   = SOCIALS.youtube;
+
+  /* =====================================================================
+     Precios y selector de moneda (MXN / USD).
+     - El precio base de cada producto vive en MXN (data-mxn).
+     - USD se calcula con tipo de cambio en vivo (open.er-api.com) y, si falla,
+       con FALLBACK_MXN_USD. El cobro real SIEMPRE es en MXN (Mercado Pago).
+     ===================================================================== */
+
+  // Marca el precio base en MXN sobre el elemento del producto.
+  document.querySelectorAll('[data-tshirt-price]').forEach(el => {
+    el.dataset.mxn = TSHIRT_PRICE_MXN;
+  });
+
+  let currentCurrency = 'MXN';
+  let mxnToUsd = FALLBACK_MXN_USD;          // se actualiza con la tasa en vivo
+  const currencySelects = document.querySelectorAll('.currency-select');
+  const fxNotes = document.querySelectorAll('.product-fx-note');
+
+  function formatPrice(mxn) {
+    if (currentCurrency === 'USD') {
+      return '$' + (mxn * mxnToUsd).toFixed(2) + ' USD';   // ej. "$31.90 USD"
+    }
+    return '$' + Math.round(mxn).toLocaleString('es-MX') + ' MXN';  // ej. "$580 MXN"
+  }
+
+  function renderPrices() {
+    document.querySelectorAll('.product-price[data-mxn]').forEach(el => {
+      el.textContent = formatPrice(Number(el.dataset.mxn));
+    });
+    // Nota de honestidad: solo visible cuando se muestran precios en USD.
+    fxNotes.forEach(n => { n.hidden = currentCurrency !== 'USD'; });
+  }
+
+  function setCurrency(code) {
+    currentCurrency = (code === 'USD') ? 'USD' : 'MXN';
+    currencySelects.forEach(s => { s.value = currentCurrency; });  // mantiene todos en sync
+    renderPrices();
+  }
+
+  currencySelects.forEach(s => {
+    s.value = 'MXN';                                   // default
+    s.addEventListener('change', () => setCurrency(s.value));
+  });
+
+  renderPrices();   // pinta el precio inicial en MXN
+
+  // Tipo de cambio en vivo: 1 MXN = rates.USD. Si falla, se queda el respaldo.
+  fetch('https://open.er-api.com/v6/latest/MXN')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.rates && typeof data.rates.USD === 'number') {
+        mxnToUsd = data.rates.USD;
+        if (currentCurrency === 'USD') renderPrices();   // refresca si ya estaba en USD
+      }
+    })
+    .catch(() => { /* se mantiene FALLBACK_MXN_USD */ });
 
   /* =====================================================================
      Cambio de vista (Home <-> Shop) sin recargar.
