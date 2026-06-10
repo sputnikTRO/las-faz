@@ -41,6 +41,13 @@
   .view { display: none; }
   #shop.active { display: block; }
 
+  /* Fundido suave al activar una vista (cambio menos brusco, estilo inspiración) */
+  #home.active, #shop.active { animation: viewFade 0.35s ease both; }
+  @keyframes viewFade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    #home.active, #shop.active { animation: none; }
+  }
+
   /* ---------- HOME / Landing (no scroll) ---------- */
   #home {
     position: fixed;
@@ -572,8 +579,14 @@
   });
 
   // Dropdown de navegación de la landing (móvil): al elegir, cambia de vista.
+  // Pequeño retraso para que el selector nativo de iOS termine de cerrarse antes
+  // del cambio de vista; junto con el fundido (viewFade) la transición no se
+  // siente brusca/jumpy (como en la inspiración).
   const homeNavSelect = document.querySelector('.home-nav-select');
-  homeNavSelect.addEventListener('change', () => showView(homeNavSelect.value));
+  homeNavSelect.addEventListener('change', () => {
+    const destino = homeNavSelect.value;
+    setTimeout(() => showView(destino), 260);
+  });
 
   document.querySelector('.menu-toggle').addEventListener('click', () => menu.classList.add('open'));
   document.querySelector('.menu-close').addEventListener('click', () => menu.classList.remove('open'));
