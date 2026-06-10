@@ -257,6 +257,16 @@
     /* El footer no crece: queda pegado al fondo gracias al grid flexible. */
     .shop-footer { flex: 0 0 auto; }
   }
+
+  /* ---------- Desktop: ajuste fino de la landing (NO afecta móvil) ----------
+     Iguala la proporción de la página de inspiración: portada y nav un poco
+     más compactos que el default. El móvil (≤640px) queda intacto. */
+  @media (min-width: 641px) {
+    /* Portada más chica (antes min(80vw,80svh,620px)). */
+    .album-link { width: min(72vw, 62svh, 560px); }
+    /* Nav Home/Shop más pequeño (antes 15px). */
+    .home-nav a { font-size: 13px; }
+  }
 </style>
 </head>
 <body>
