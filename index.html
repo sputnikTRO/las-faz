@@ -164,6 +164,15 @@
     max-width: 340px;
   }
   .product:hover { opacity: 0.7; }
+  /* Al pasar el cursor (desktop) o tocar/presionar (móvil) el producto,
+     se subraya el título con línea negra. */
+  .product:hover .product-name,
+  .product:active .product-name,
+  .product:focus-visible .product-name {
+    text-decoration: underline;
+    text-decoration-color: var(--black);
+    text-underline-offset: 3px;
+  }
   .product img {
     width: 100%;
     height: auto;
