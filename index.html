@@ -69,6 +69,9 @@
   .home-nav a.current { text-decoration: underline; text-underline-offset: 3px; }
   .home-nav a:hover { opacity: 0.4; }
 
+  /* Dropdown de navegación de la landing (solo móvil; oculto en desktop) */
+  .home-nav-select { display: none; }
+
   .album-link {
     display: block;
     width: min(80vw, 80svh, 620px);
@@ -239,6 +242,33 @@
   @media (max-width: 640px) {
     .album-link { width: min(88vw, 70svh); }
 
+    /* Landing móvil: oculta el nav apilado y muestra el dropdown "Home ▾"
+       (igual que la inspiración): label a la izquierda, flecha a la derecha. */
+    .home-nav { display: none; }
+    .home-nav-select {
+      display: block;
+      position: absolute;
+      top: clamp(28px, 5vh, 56px);
+      left: 0;
+      width: 100%;
+      padding: 0 var(--pad);
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-color: transparent;
+      border: none;
+      color: var(--black);
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.6;
+      cursor: pointer;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" stroke="black" stroke-width="1.4"><path d="M2 4l4 4 4-4"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right var(--pad) center;
+      background-size: 13px 13px;
+    }
+    .home-nav-select:focus { outline: none; }
+
     /* Shop como columna a toda la altura: el contenido empuja el footer
        SIEMPRE hasta el fondo de la pantalla (sticky footer). */
     #shop.active {
@@ -273,10 +303,16 @@
 
 <!-- ============ HOME / LANDING ============ -->
 <div id="home" class="view active" data-screen-label="Home">
+  <!-- Desktop: nav apilado (Home / Shop) -->
   <nav class="home-nav">
     <a href="#" class="current" data-view="home">Home</a>
     <a href="#" data-view="shop">Shop</a>
   </nav>
+  <!-- Móvil: dropdown "Home ▾" que abre el selector de navegación (como la inspiración) -->
+  <select class="home-nav-select" aria-label="Navegación">
+    <option value="home">Home</option>
+    <option value="shop">Shop</option>
+  </select>
 
   <!-- Portada del álbum: clickeable -> abre STREAMING_LINK en pestaña nueva.
        Reemplaza assets/album.jpg por la portada real de "PESCANDO EN ALASKA". -->
@@ -522,6 +558,9 @@
     menu.classList.remove('open');
     // En Home se bloquea el scroll (landing a pantalla completa); en Shop se permite.
     document.body.classList.toggle('no-scroll', name === 'home');
+    // Mantén el dropdown de la landing reflejando la vista actual.
+    const hns = document.querySelector('.home-nav-select');
+    if (hns) hns.value = (name === 'home') ? 'home' : 'shop';
     window.scrollTo(0, 0);
   }
 
@@ -531,6 +570,10 @@
       showView(el.dataset.view);
     });
   });
+
+  // Dropdown de navegación de la landing (móvil): al elegir, cambia de vista.
+  const homeNavSelect = document.querySelector('.home-nav-select');
+  homeNavSelect.addEventListener('change', () => showView(homeNavSelect.value));
 
   document.querySelector('.menu-toggle').addEventListener('click', () => menu.classList.add('open'));
   document.querySelector('.menu-close').addEventListener('click', () => menu.classList.remove('open'));
