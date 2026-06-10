@@ -238,8 +238,24 @@
   /* ---------- Mobile ---------- */
   @media (max-width: 640px) {
     .album-link { width: min(88vw, 70svh); }
-    /* Grid del Shop a 2 columnas; con 1 solo producto se ve centrado */
-    .product { flex: 0 1 calc(50% - 12px); max-width: none; }
+
+    /* Shop como columna a toda la altura: el contenido empuja el footer
+       SIEMPRE hasta el fondo de la pantalla (sticky footer). */
+    #shop.active {
+      display: flex;
+      flex-direction: column;
+      min-height: 100svh;
+    }
+    /* El grid crece y ocupa el espacio sobrante para que el footer baje. */
+    .shop-grid {
+      flex: 1 0 auto;
+      padding: clamp(20px, 5vh, 32px) var(--pad) clamp(28px, 5vh, 40px);
+    }
+    /* Producto a ancho completo (1 columna): imagen grande y protagónica,
+       cuadrada, con ~20px de padding lateral (heredado de --pad). */
+    .product { flex: 1 1 100%; max-width: none; }
+    /* El footer no crece: queda pegado al fondo gracias al grid flexible. */
+    .shop-footer { flex: 0 0 auto; }
   }
 </style>
 </head>
