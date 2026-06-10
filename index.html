@@ -349,9 +349,19 @@
   // Home: portada -> streaming
   document.getElementById('album-link').href = STREAMING_LINK;
 
-  // Compra: producto + íconos de carrito -> Mercado Pago
+  // Compra: producto + íconos de carrito -> Mercado Pago.
+  // Si MERCADOPAGO_LINK sigue sin configurarse, el botón no abre una página rota:
+  // avisa que el pago estará disponible pronto. Al pegar el link real, funciona solo.
+  const MP_LISTO = MERCADOPAGO_LINK && MERCADOPAGO_LINK !== "PEGAR_AQUI_LINK_DE_PAGO";
   document.querySelectorAll('.product-buy, #cart-link, #cart-link-menu').forEach(el => {
-    el.href = MERCADOPAGO_LINK;
+    if (MP_LISTO) {
+      el.href = MERCADOPAGO_LINK;
+    } else {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        alert('La compra estará disponible muy pronto. ¡Gracias por tu interés!');
+      });
+    }
   });
 
   // Contacto -> mailto
